@@ -1,0 +1,65 @@
+run_id: proposed-qwen3-4b-gsm8k
+method: ECSR-CoT (Error-Correcting State Recurrence)
+model:
+  name: Qwen/Qwen3-4B
+  dtype: bf16
+  device_map: auto
+dataset:
+  name: openai/gsm8k
+  config: main
+  split: test[50:500]
+  dev_split: test[:50]
+  preprocessing:
+    max_length: 512
+    normalize_numeric: true
+training:
+  mode: inference_only
+  learning_rate: 0.0
+  batch_size: 1
+  epochs: 0
+  optimizer: none
+  warmup_steps: 0
+  gradient_accumulation_steps: 1
+protocol:
+  rounds:
+    heuristic: number_count
+    R_max: 3
+  invariant_count: 3
+  max_repairs: 2
+  tol: 1.0e-6
+  max_new_tokens_round: 192
+  max_new_tokens_repair: 160
+  max_new_tokens_final: 64
+  decoding:
+    do_sample: false
+    num_beams: 1
+optuna:
+  n_trials: 20
+  search_spaces:
+    - param_name: max_repairs
+      distribution_type: int
+      low: 0
+      high: 2
+    - param_name: invariant_count
+      distribution_type: int
+      low: 2
+      high: 4
+    - param_name: tol
+      distribution_type: loguniform
+      low: 1.0e-7
+      high: 1.0e-3
+    - param_name: max_new_tokens_round
+      distribution_type: int
+      low: 96
+      high: 224
+    - param_name: max_new_tokens_repair
+      distribution_type: int
+      low: 64
+      high: 192
+    - param_name: R_max
+      distribution_type: int
+      low: 1
+      high: 4
+runner:
+  labels: [self-hosted, gpu-runner]
+  hardware: NVIDIA H200 140GB

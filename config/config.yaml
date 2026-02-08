@@ -1,0 +1,21 @@
+defaults:
+  - _self_
+  - run: comparative-1-qwen3-4b-gsm8k
+
+mode: full
+results_dir: results
+seed: 42
+cache_dir: .cache
+trial_max_batches: null
+trial_max_examples: null
+
+wandb:
+  entity: airas
+  project: 2026-02-08
+  mode: online
+
+hydra:
+  run:
+    dir: .
+  job:
+    chdir: false
